@@ -706,11 +706,16 @@ class SpeculativeConfig:
                     MTPModelTypes
                 ):
                     self.method = "mtp"
-                    if self.num_speculative_tokens > 1:
+                    n_predict = getattr(
+                        self.draft_model_config.hf_config, "n_predict", None
+                    )
+                    if self.num_speculative_tokens > 1 and (
+                        n_predict is None or n_predict <= 1
+                    ):
                         logger.warning(
                             "Enabling num_speculative_tokens > 1 will run "
-                            "multiple times of forward on same MTP layer"
-                            ",which may result in lower acceptance rate"
+                            "multiple forwards on a single-layer MTP model, "
+                            "which may result in lower acceptance rate"
                         )
                 elif self.draft_model_config.hf_config.model_type in (
                     "longcat_flash_mtp"
